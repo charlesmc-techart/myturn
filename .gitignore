@@ -1,0 +1,13 @@
+# main
+*.tsv
+?archive
+ACT?/
+
+# caches
+*.zwc
+.cache
+__pycache__
+
+# misc
+.DS_Store
+.vscode

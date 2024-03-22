@@ -1,0 +1,17 @@
+#!/bin/zsh
+
+readonly harmony_ver=22
+
+readonly bin="${0:A:h}/bin"
+declare -U path
+path+=("$("${bin}/getHarmonyPath.py" "${harmony_ver}")")
+readonly path
+
+readonly harmony="${0:A:h}/src/harmony"
+declare -A scripts
+scripts[cmd]="${bin}/renderHarmonyScenes.py"
+scripts[pre]="${harmony}/prerender.js"
+scripts[post]="${harmony}/postrender.js"
+readonly scripts
+
+"${scripts[cmd]}" "$@" -pr "${scripts[pre]}" -ps "${scripts[post]}"
