@@ -34,26 +34,26 @@ def formatInformation(
     return tuple(infoFromHarmony)
 
 
-def writeToTsv(infoToWrite: Sequence[Union[str, int]], tsvPath: Path) -> None:
-    """Write the information to the TSV file."""
-    writeHeaders = not (tsvPath.exists() and tsvPath.is_file())
-    with open(tsvPath, "a") as tsvFile:
-        writer = csv.writer(tsvFile, dialect=csv.excel_tab)
-        if writeHeaders:
-            writer.writerow(
-                (
-                    "Date",
-                    "Version",
-                    "Frames",
-                    "Start",
-                    "End",
-                    "Color Space",
-                    "Started",
-                    "Finished",
-                    "Rendered",
-                    "Job ID",
-                )
-            )
+def writeToTsv(infoToWrite: Sequence[str | int], tsvFile: Path) -> None:
+    """Write the information to the TSV file"""
+    headers = (
+        "Date",
+        "Version",
+        "Frames",
+        "Start",
+        "End",
+        "Color Space",
+        "Started",
+        "Finished",
+        "Rendered",
+        "Job ID",
+    )
+    willWriteHeaders = not (tsvFile.exists() and tsvFile.is_file())
+
+    with tsvFile.open("a", encoding="utf-8") as f:
+        writer = csv.writer(f, dialect=csv.excel_tab)
+        if willWriteHeaders:
+            writer.writerow(headers)
         writer.writerow(infoToWrite)
 
 
