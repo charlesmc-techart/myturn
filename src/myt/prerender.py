@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
-from typing import NoReturn
+from typing import NoReturn, Optional
 
 
 def getCurrentTime() -> str:
@@ -10,7 +10,7 @@ def getCurrentTime() -> str:
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
-def verifyScene(scene: Path) -> str:
+def verifyScene(scene: Path) -> Optional[str]:
     """Verify if the scene path is a valid Harmony scene."""
     if not scene.exists():
         return f"Path does not exist: {scene}"
@@ -18,7 +18,7 @@ def verifyScene(scene: Path) -> str:
         return "Not a Harmony scene: " + scene.name
     elif "myt" not in scene.stem:
         return "Not a My Turn scene: " + scene.stem
-    return ""
+    return None
 
 
 def getSequence(scene: Path) -> tuple[str, str]:

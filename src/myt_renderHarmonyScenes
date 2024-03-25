@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+
+import os
+from argparse import ArgumentParser
+
+import myt.render
+
+HARMONY_VER = 21.1
+HARMONY_PATH = (
+    f"/Applications/Toon Boom Harmony {HARMONY_VER} Premium"
+    f"/Harmony {HARMONY_VER} Premium.app/Contents/tba/macosx/bin"
+)
+os.environ["PATH"] += f":{HARMONY_PATH}"
+
+if __name__ == "__main__":
+    parser = ArgumentParser(prog="My Turn! Harmony Exporter")
+    parser.add_argument(
+        "scenes", nargs="+", help="paths to Harmony scene files"
+    )
+    args = parser.parse_args()
+    myt.render.main(args.scenes)

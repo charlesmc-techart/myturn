@@ -3,45 +3,45 @@ import subprocess
 import tempfile
 import uuid
 from pathlib import Path
+from typing import Optional
 
-import myt.modules.postrender as post
-import myt.modules.prerender as pre
+import myt.postrender as post
+import myt.prerender as pre
+
+HARMONY_SCRIPTS_DIR = Path(__file__).with_name("harmony")
+PRE_RENDER_SCRIPT = HARMONY_SCRIPTS_DIR / "prerender.js"
+POST_RENDER_SCRIPT = HARMONY_SCRIPTS_DIR / "postrender.js"
 
 
-def renderScene(
-    scenePath: Path, preRenderScript: str, postRenderScript: str
-) -> str:
+def render(scene: Path) -> Optional[str]:
     """Render the Harmony scene, then return a failure message if any."""
-    args: list[str] = []
-    if preRenderScript:
-        args.extend(("-preRenderScript", preRenderScript))
-    if postRenderScript:
-        args.extend(("-postRenderScript", postRenderScript))
-
-    result = subprocess.run(
-        (
-            "Harmony Premium",
-            "-readonly",
-            "-batch",
-            scenePath,
-            *args,
-        )
+    args = (
+        "Harmony Premium",
+        "-readonly",
+        "-batch",
+        scene,
+        "-preRenderScript",
+        PRE_RENDER_SCRIPT,
+        "-postRenderScript",
+        POST_RENDER_SCRIPT,
     )
+    result = subprocess.run(args)
     if result.returncode:
-        return "Harmony failure    : " + scenePath.stem
-    return ""
+        return "Harmony failure    : " + scene.stem
+    return None
 
 
-def processRender(
-    scenePaths: list[str], preRenderScript: str, postRenderScript: str
-) -> None:
+def main(scenePaths: list[str]) -> None:
     execStartTime = pre.getCurrentTime()
 
     tempFile = tempfile.NamedTemporaryFile(prefix="myt_render_")
     os.environ["MYT_TEMP_FILE"] = tempFile.name
     tempFilePath = Path(tempFile.name)
 
-    gDrive = Path(__file__).resolve().parents[3]
+    # gDrive = Path(__file__).resolve().parents[2]
+    gDrive = Path(
+        "/Users/charles_mc/Library/CloudStorage/GoogleDrive-charlesvincent.cayobit@sjsu.edu/Shared drives/BFA_23_24_My_Turn_COMP"
+    )
     os.environ["MYT_G_DRIVE"] = f"{gDrive}"
 
     tsvPath = gDrive / "myt_render_log.tsv"
@@ -65,15 +65,13 @@ def processRender(
         os.environ["MYT_RENDER_DIR"] = f"{renderDir}"
         os.environ["MYT_RENDER_VER"] = pre.setVersion(renderDir)
 
-        if failureMessage := renderScene(
-            scenePath, preRenderScript, postRenderScript
-        ):
+        if failureMessage := render(scenePath):
             failedRenders.append(failureMessage)
             continue
 
         successfulRenders.append(scenePath.stem)
         renderEndTime = pre.getCurrentTime()
-        post.log_results(
+        post.logResults(
             tempFilePath,
             execStartTime,
             renderStartTime,

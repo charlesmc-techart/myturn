@@ -53,7 +53,7 @@ def writeToTsv(infoToWrite: Sequence[Union[str, int]], tsvPath: Path) -> None:
         writer.writerow(infoToWrite)
 
 
-def log_results(
+def logResults(
     tempFilePath: Path,
     execStartTime: str,
     renderStartTime: str,
