@@ -68,7 +68,10 @@ def findRenderPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
         raise DirectoryNotFoundError(parentDir / ("*" + identifier))
 
     actDir = findDir(shot.act, parentDir=parentDir)
-    return findDir(shot.number, parentDir=actDir) / "EXR"
+    shotDir = findDir(shot.number, parentDir=actDir) / "EXR"
+    if shotDir.is_dir():
+        return shotDir
+    raise DirectoryNotFoundError(shotDir)
 
 
 def newVersion(dir: Path, versionIndicator: str = "v") -> str:
