@@ -4,8 +4,8 @@ import tempfile
 import uuid
 from pathlib import Path
 
-import myt_scripts.modules.postrender as myt_post
-import myt_scripts.modules.prerender as myt_pre
+import myt.modules.postrender as post
+import myt.modules.prerender as pre
 
 
 def renderScene(
@@ -35,7 +35,7 @@ def renderScene(
 def processRender(
     scenePaths: list[str], preRenderScript: str, postRenderScript: str
 ) -> None:
-    execStartTime = myt_pre.getCurrentTime()
+    execStartTime = pre.getCurrentTime()
 
     tempFile = tempfile.NamedTemporaryFile(prefix="myt_render_")
     os.environ["MYT_TEMP_FILE"] = tempFile.name
@@ -51,19 +51,19 @@ def processRender(
 
     for scenePath in scenePaths:
         jobId = uuid.uuid4().time_hi_version
-        renderStartTime = myt_pre.getCurrentTime()
+        renderStartTime = pre.getCurrentTime()
 
         scenePath = Path(scenePath).resolve()
 
-        if failureMessage := myt_pre.verifyScene(scenePath):
+        if failureMessage := pre.verifyScene(scenePath):
             failedRenders.append(failureMessage)
             continue
 
-        actNum, shotNum = myt_pre.getSequence(scenePath)
-        renderDir = myt_pre.findRenderDir(actNum, shotNum, gDrive)
+        actNum, shotNum = pre.getSequence(scenePath)
+        renderDir = pre.findRenderDir(actNum, shotNum, gDrive)
 
         os.environ["MYT_RENDER_DIR"] = f"{renderDir}"
-        os.environ["MYT_RENDER_VER"] = myt_pre.setVersion(renderDir)
+        os.environ["MYT_RENDER_VER"] = pre.setVersion(renderDir)
 
         if failureMessage := renderScene(
             scenePath, preRenderScript, postRenderScript
@@ -72,8 +72,8 @@ def processRender(
             continue
 
         successfulRenders.append(scenePath.stem)
-        renderEndTime = myt_pre.getCurrentTime()
-        myt_post.log_results(
+        renderEndTime = pre.getCurrentTime()
+        post.log_results(
             tempFilePath,
             execStartTime,
             renderStartTime,
@@ -81,4 +81,4 @@ def processRender(
             jobId,
             tsvPath,
         )
-    myt_post.printResults(successfulRenders, failedRenders)
+    post.printResults(successfulRenders, failedRenders)
