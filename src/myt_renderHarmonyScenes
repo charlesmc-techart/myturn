@@ -2,6 +2,7 @@
 
 import os
 from argparse import ArgumentParser
+from pathlib import Path
 
 import myt.render
 
@@ -15,7 +16,7 @@ os.environ["PATH"] += f":{HARMONY_PATH}"
 if __name__ == "__main__":
     parser = ArgumentParser(prog="My Turn! Harmony Exporter")
     parser.add_argument(
-        "scenes", nargs="+", help="paths to Harmony scene files"
+        "scenes", type=Path, nargs="+", help="paths to Harmony scene files"
     )
     args = parser.parse_args()
     myt.render.main(args.scenes)
