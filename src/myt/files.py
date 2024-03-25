@@ -77,8 +77,8 @@ def getShotPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
             parentDir / ("*" + identifier)
         )
 
-    actDir = findDir(shot.act, parentDir)
-    return findDir(shot.number, actDir) / "EXR"
+    actDir = findDir(shot.act, parentDir=parentDir)
+    return findDir(shot.number, parentDir=actDir) / "EXR"
 
 
 def constructVersionSuffix(dir: Path, versionIndicator: str = "v") -> str:

@@ -31,52 +31,48 @@ def render(scene: Path) -> Optional[str]:
     return None
 
 
-def main(scenePaths: list[str]) -> None:
-    execStartTime = mlogs.getCurrentTime()
+def main(sceneFiles: Sequence[Path]) -> None:
+    jobStartTime = mlogs.getCurrentTime()
 
     tempFile = tempfile.NamedTemporaryFile(prefix="myt_render_")
-    os.environ["MYT_TEMP_FILE"] = tempFile.name
+    env = os.environ
+    env["MYT_TEMP_FILE"] = tempFile.name
     tempFilePath = Path(tempFile.name)
 
-    # gDrive = Path(__file__).resolve().parents[2]
-    gDrive = Path(
-        "/Users/charles_mc/Library/CloudStorage/GoogleDrive-charlesvincent.cayobit@sjsu.edu/Shared drives/BFA_23_24_My_Turn_COMP"
-    )
-    os.environ["MYT_G_DRIVE"] = f"{gDrive}"
+    gDrive = Path(__file__).resolve().parents[2]
+    env["MYT_G_DRIVE"] = f"{gDrive}"
 
-    tsvPath = gDrive / "myt_render_log.tsv"
+    tsvFile = gDrive / "myt_render_log.tsv"
 
     successfulRenders: list[str] = []
-    failedRenders: list[str] = []
+    errorMessages: list[str] = []
 
-    for scenePath in scenePaths:
+    for sceneFile in sceneFiles:
         jobId = uuid.uuid4().time_hi_version
         renderStartTime = mlogs.getCurrentTime()
 
-        scenePath = Path(scenePath).resolve()
-
-        if failureMessage := mfiles.verifyScene(scenePath):
-            failedRenders.append(failureMessage)
+        if errorMessage := mfiles.verifyScene(sceneFile):
+            errorMessages.append(errorMessage)
             continue
 
-        shot = mfiles.ShotID.getFromFilename(scenePath.stem)
+        shot = mfiles.ShotID.getFromFilename(sceneFile.stem)
         renderDir = mfiles.getShotPath(shot, gDrive)
 
-        os.environ["MYT_RENDER_DIR"] = f"{renderDir}"
-        os.environ["MYT_RENDER_VER"] = mfiles.constructVersionSuffix(renderDir)
+        env["MYT_RENDER_DIR"] = f"{renderDir}"
+        env["MYT_RENDER_VER"] = mfiles.constructVersionSuffix(renderDir)
 
-        if failureMessage := render(scenePath):
-            failedRenders.append(failureMessage)
+        if errorMessage := render(sceneFile):
+            errorMessages.append(errorMessage)
             continue
 
-        successfulRenders.append(scenePath.stem)
+        successfulRenders.append(sceneFile.stem)
         renderEndTime = mlogs.getCurrentTime()
         mlogs.logResults(
-            tempFilePath,
-            execStartTime,
-            renderStartTime,
-            renderEndTime,
-            jobId,
-            tsvPath,
+            tsvFile,
+            tempFile=tempFilePath,
+            jobId=jobId,
+            jobStartTime=jobStartTime,
+            renderStartTime=renderStartTime,
+            renderEndTime=renderEndTime,
         )
-    mlogs.printResults(successfulRenders, failedRenders)
+    mlogs.printResults(successfulRenders, errorMessages=errorMessages)
