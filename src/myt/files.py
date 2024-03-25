@@ -56,7 +56,7 @@ def findRenderPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
     """Get the path to the specific shot directory"""
 
     class DirectoryNotFoundError(FileNotFoundError):
-        """Provided directory could not be found on the Google shared drive"""
+        """Directory could not be found"""
 
         def __init__(self, dir: Path | str) -> None:
             super().__init__(f"Could not find directory: '{dir}'")
