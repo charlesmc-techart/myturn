@@ -4,7 +4,6 @@
 ACT?/
 
 # caches
-*.zwc
 .cache
 __pycache__
 
