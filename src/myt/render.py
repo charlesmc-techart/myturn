@@ -2,6 +2,7 @@ import os
 import subprocess
 import tempfile
 import uuid
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Optional
 
@@ -14,7 +15,7 @@ POST_RENDER_SCRIPT = HARMONY_SCRIPTS_DIR / "postrender.js"
 
 
 def render(scene: Path) -> Optional[str]:
-    """Render the Harmony scene, then return a failure message if any."""
+    """Render the Harmony scene, then return an error message if any"""
     args = (
         "Harmony Premium",
         "-readonly",
