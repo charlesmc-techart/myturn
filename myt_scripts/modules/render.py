@@ -4,81 +4,81 @@ import tempfile
 import uuid
 from pathlib import Path
 
-import myt_scripts.src.modules.postrender as myt_post
-import myt_scripts.src.modules.prerender as myt_pre
+import myt_scripts.modules.postrender as myt_post
+import myt_scripts.modules.prerender as myt_pre
 
 
-def render_scene(
-    scene_path: Path, pre_render_script: str, post_render_script: str
+def renderScene(
+    scenePath: Path, preRenderScript: str, postRenderScript: str
 ) -> str:
     """Render the Harmony scene, then return a failure message if any."""
     args: list[str] = []
-    if pre_render_script:
-        args.extend(("-preRenderScript", pre_render_script))
-    if post_render_script:
-        args.extend(("-postRenderScript", post_render_script))
+    if preRenderScript:
+        args.extend(("-preRenderScript", preRenderScript))
+    if postRenderScript:
+        args.extend(("-postRenderScript", postRenderScript))
 
     result = subprocess.run(
         (
             "Harmony Premium",
             "-readonly",
             "-batch",
-            scene_path,
+            scenePath,
             *args,
         )
     )
     if result.returncode:
-        return "Harmony failure    : " + scene_path.stem
+        return "Harmony failure    : " + scenePath.stem
     return ""
 
 
-def process_render(
-    scene_paths: list[str], pre_render_script: str, post_render_script: str
+def processRender(
+    scenePaths: list[str], preRenderScript: str, postRenderScript: str
 ) -> None:
-    exec_start_time = myt_pre.get_current_time()
+    execStartTime = myt_pre.getCurrentTime()
 
-    temp_file = tempfile.NamedTemporaryFile(prefix="myt_render_")
-    os.environ["MYT_TEMP_FILE"] = temp_file.name
-    temp_file_path = Path(temp_file.name)
+    tempFile = tempfile.NamedTemporaryFile(prefix="myt_render_")
+    os.environ["MYT_TEMP_FILE"] = tempFile.name
+    tempFilePath = Path(tempFile.name)
 
-    g_drive = Path(__file__).resolve().parents[3]
-    os.environ["MYT_G_DRIVE"] = f"{g_drive}"
+    gDrive = Path(__file__).resolve().parents[3]
+    os.environ["MYT_G_DRIVE"] = f"{gDrive}"
 
-    tsv_path = g_drive / "myt_render_log.tsv"
+    tsvPath = gDrive / "myt_render_log.tsv"
 
-    successful_renders: list[str] = []
-    failed_renders: list[str] = []
+    successfulRenders: list[str] = []
+    failedRenders: list[str] = []
 
-    for scene_path in scene_paths:
-        job_id = uuid.uuid4().time_hi_version
-        render_time_start = myt_pre.get_current_time()
+    for scenePath in scenePaths:
+        jobId = uuid.uuid4().time_hi_version
+        renderStartTime = myt_pre.getCurrentTime()
 
-        scene_path = Path(scene_path).resolve()
+        scenePath = Path(scenePath).resolve()
 
-        if failure_message := myt_pre.verify_scene(scene_path):
-            failed_renders.append(failure_message)
+        if failureMessage := myt_pre.verifyScene(scenePath):
+            failedRenders.append(failureMessage)
             continue
 
-        act_num, shot_num = myt_pre.get_sequence(scene_path)
-        render_dir = myt_pre.find_render_dir(act_num, shot_num, g_drive)
+        actNum, shotNum = myt_pre.getSequence(scenePath)
+        renderDir = myt_pre.findRenderDir(actNum, shotNum, gDrive)
 
-        os.environ["MYT_RENDER_DIR"] = f"{render_dir}"
-        os.environ["MYT_RENDER_VER"] = myt_pre.set_version(render_dir)
+        os.environ["MYT_RENDER_DIR"] = f"{renderDir}"
+        os.environ["MYT_RENDER_VER"] = myt_pre.setVersion(renderDir)
 
-        if failure_message := render_scene(
-            scene_path, pre_render_script, post_render_script
+        if failureMessage := renderScene(
+            scenePath, preRenderScript, postRenderScript
         ):
-            failed_renders.append(failure_message)
+            failedRenders.append(failureMessage)
             continue
 
-        successful_renders.append(scene_path.stem)
-        render_time_end = myt_pre.get_current_time()
+        successfulRenders.append(scenePath.stem)
+        renderEndTime = myt_pre.getCurrentTime()
         myt_post.log_results(
-            temp_file_path,
-            exec_start_time,
-            render_time_start,
-            render_time_end,
-            job_id,
-            tsv_path,
+            tempFilePath,
+            execStartTime,
+            renderStartTime,
+            renderEndTime,
+            jobId,
+            tsvPath,
         )
-    myt_post.print_results(successful_renders, failed_renders)
+    myt_post.printResults(successfulRenders, failedRenders)

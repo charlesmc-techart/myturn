@@ -4,40 +4,38 @@ from pathlib import Path
 from typing import Any, NoReturn, Union
 
 
-def parse_harmony_info(temp_file_path: Path) -> list[str]:
+def parseHarmonyInfo(tempFilePath: Path) -> list[str]:
     """Get information about the scene from the file Harmony wrote to."""
-    with open(temp_file_path, "r") as temp_file:
+    with open(tempFilePath, "r") as temp_file:
         return temp_file.read().split(",")
 
 
-def format_information(
-    info_from_harmony: MutableSequence[Any],
-    info_about_render: Sequence[Any],
+def formatInformation(
+    infoFromHarmony: MutableSequence[Any],
+    infoAboutRender: Sequence[Any],
 ) -> tuple[Any, ...]:
     """Reorganize information before writing to the TSV file."""
     (
-        exect_start_time,
-        render_time_start,
-        render_time_end,
-        job_id,
-    ) = info_about_render
+        execStartTime,
+        renderStartTime,
+        renderEndTime,
+        jobId,
+    ) = infoAboutRender
 
-    info_from_harmony.insert(0, exect_start_time)
-    info_from_harmony.insert(-1, render_time_start)
-    info_from_harmony.insert(-1, render_time_end)
-    info_from_harmony.append(job_id)
+    infoFromHarmony.insert(0, execStartTime)
+    infoFromHarmony.insert(-1, renderStartTime)
+    infoFromHarmony.insert(-1, renderEndTime)
+    infoFromHarmony.append(jobId)
 
-    return tuple(info_from_harmony)
+    return tuple(infoFromHarmony)
 
 
-def write_to_tsv(
-    info_to_write: Sequence[Union[str, int]], tsv_path: Path
-) -> None:
+def writeToTsv(infoToWrite: Sequence[Union[str, int]], tsvPath: Path) -> None:
     """Write the information to the TSV file."""
-    write_headers = not (tsv_path.exists() and tsv_path.is_file())
-    with open(tsv_path, "a") as tsv_file:
-        writer = csv.writer(tsv_file, dialect=csv.excel_tab)
-        if write_headers:
+    writeHeaders = not (tsvPath.exists() and tsvPath.is_file())
+    with open(tsvPath, "a") as tsvFile:
+        writer = csv.writer(tsvFile, dialect=csv.excel_tab)
+        if writeHeaders:
             writer.writerow(
                 (
                     "Date",
@@ -52,46 +50,46 @@ def write_to_tsv(
                     "Job ID",
                 )
             )
-        writer.writerow(info_to_write)
+        writer.writerow(infoToWrite)
 
 
 def log_results(
-    temp_file_path: Path,
-    exec_start_time: str,
-    render_time_start: str,
-    render_time_end: str,
-    job_id: int,
-    tsv_path: Path,
+    tempFilePath: Path,
+    execStartTime: str,
+    renderStartTime: str,
+    renderEndTime: str,
+    jobId: int,
+    tsvPath: Path,
 ):
-    info_from_harmony = parse_harmony_info(temp_file_path)
-    formatted_info = format_information(
-        info_from_harmony,
+    infoFromHarmony = parseHarmonyInfo(tempFilePath)
+    formattedInfo = formatInformation(
+        infoFromHarmony,
         (
-            exec_start_time,
-            render_time_start,
-            render_time_end,
-            job_id,
+            execStartTime,
+            renderStartTime,
+            renderEndTime,
+            jobId,
         ),
     )
-    write_to_tsv(formatted_info, tsv_path)
+    writeToTsv(formattedInfo, tsvPath)
 
 
-def print_results(
-    successful_renders: Sequence[str], failed_renders: Sequence[str]
+def printResults(
+    successfulRenders: Sequence[str], failedRenders: Sequence[str]
 ) -> Union[None, NoReturn]:
     """Print the file names of successful renders and error messages."""
     print()
-    if successful_renders:
+    if successfulRenders:
         print("Successfully rendered:")
-        for item in successful_renders:
+        for item in successfulRenders:
             print(item)
-        if failed_renders:
+        if failedRenders:
             print()
             print("Failed to render:")
-            for item in failed_renders:
+            for item in failedRenders:
                 print(item)
     else:
         print("Failed to render")
-        for item in failed_renders:
+        for item in failedRenders:
             print(item)
         exit(1)
