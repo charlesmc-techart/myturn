@@ -13,7 +13,7 @@ def verifyScene(scene: Path) -> Optional[str]:
     elif scene.suffix != ".xstage":
         return "Not a Harmony scene: " + scene.name
     elif SHOW not in scene.stem:
-        return "Not a My Turn scene: " + scene.stem
+        return "Not a My Turn! scene: " + scene.stem
     return None
 
 

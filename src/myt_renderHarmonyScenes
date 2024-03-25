@@ -6,7 +6,7 @@ from pathlib import Path
 
 import myt.render
 
-HARMONY_VER = 22
+HARMONY_VER = 21.1
 HARMONY_PATH = (
     f"/Applications/Toon Boom Harmony {HARMONY_VER} Premium"
     f"/Harmony {HARMONY_VER} Premium.app/Contents/tba/macosx/bin"

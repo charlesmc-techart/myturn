@@ -36,6 +36,7 @@ def formatInformation(
 
 def writeToTsv(infoToWrite: Sequence[str | int], tsvFile: Path) -> None:
     """Write the information to the TSV file"""
+    willWriteHeaders = not (tsvFile.exists() and tsvFile.is_file())
     headers = (
         "Date",
         "Version",
@@ -48,7 +49,6 @@ def writeToTsv(infoToWrite: Sequence[str | int], tsvFile: Path) -> None:
         "Rendered",
         "Job ID",
     )
-    willWriteHeaders = not (tsvFile.exists() and tsvFile.is_file())
 
     with tsvFile.open("a", encoding="utf-8") as f:
         writer = csv.writer(f, dialect=csv.excel_tab)
