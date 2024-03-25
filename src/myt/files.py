@@ -12,7 +12,7 @@ def verifyScene(scene: Path) -> Optional[str]:
         return f"Path does not exist: {scene}"
     elif scene.suffix != ".xstage":
         return "Not a Harmony scene: " + scene.name
-    elif "myt" not in scene.stem:
+    elif SHOW not in scene.stem:
         return "Not a My Turn scene: " + scene.stem
     return None
 
@@ -83,11 +83,7 @@ def getShotPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
 
 def constructVersionSuffix(dir: Path, versionIndicator: str = "v") -> str:
     """Construct a directory name version, formatted `v###`."""
-    dirs = [
-        d
-        for d in dir.iterdir()
-        if d.is_dir() and d.stem.lower().startswith("myt")
-    ]
+    dirs = [d for d in dir.iterdir() if d.is_dir() and SHOW in d.name]
 
     def constructSuffix(version: int) -> str:
         return versionIndicator + f"{version + 1}".zfill(3)
