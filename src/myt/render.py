@@ -40,7 +40,7 @@ def main(sceneFiles: Sequence[Path]) -> None:
     env["MYT_TEMP_FILE"] = tempFile.name
     tempFilePath = Path(tempFile.name)
 
-    gDrive = Path(__file__).resolve().parents[2]
+    gDrive = HARMONY_SCRIPTS_DIR.parents[2]
     env["MYT_G_DRIVE"] = f"{gDrive}"
 
     tsvFile = gDrive / "myt_render_log.tsv"
