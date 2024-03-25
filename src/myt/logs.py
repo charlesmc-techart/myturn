@@ -1,7 +1,13 @@
 import csv
 from collections.abc import MutableSequence, Sequence
+from datetime import datetime
 from pathlib import Path
 from typing import Any, NoReturn, Union
+
+
+def getCurrentTime() -> str:
+    """Get the current time in MM/DD/YYYY HH:MM:SS format."""
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def parseHarmonyInfo(tempFilePath: Path) -> list[str]:

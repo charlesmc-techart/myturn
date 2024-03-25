@@ -5,8 +5,8 @@ import uuid
 from pathlib import Path
 from typing import Optional
 
-import myt.postrender as post
-import myt.prerender as pre
+import myt.files as mfiles
+import myt.logs as mlogs
 
 HARMONY_SCRIPTS_DIR = Path(__file__).with_name("harmony")
 PRE_RENDER_SCRIPT = HARMONY_SCRIPTS_DIR / "prerender.js"
@@ -32,7 +32,7 @@ def render(scene: Path) -> Optional[str]:
 
 
 def main(scenePaths: list[str]) -> None:
-    execStartTime = pre.getCurrentTime()
+    execStartTime = mlogs.getCurrentTime()
 
     tempFile = tempfile.NamedTemporaryFile(prefix="myt_render_")
     os.environ["MYT_TEMP_FILE"] = tempFile.name
@@ -51,11 +51,11 @@ def main(scenePaths: list[str]) -> None:
 
     for scenePath in scenePaths:
         jobId = uuid.uuid4().time_hi_version
-        renderStartTime = pre.getCurrentTime()
+        renderStartTime = mlogs.getCurrentTime()
 
         scenePath = Path(scenePath).resolve()
 
-        if failureMessage := pre.verifyScene(scenePath):
+        if failureMessage := mfiles.verifyScene(scenePath):
             failedRenders.append(failureMessage)
             continue
 
@@ -70,8 +70,8 @@ def main(scenePaths: list[str]) -> None:
             continue
 
         successfulRenders.append(scenePath.stem)
-        renderEndTime = pre.getCurrentTime()
-        post.logResults(
+        renderEndTime = mlogs.getCurrentTime()
+        mlogs.logResults(
             tempFilePath,
             execStartTime,
             renderStartTime,
@@ -79,4 +79,4 @@ def main(scenePaths: list[str]) -> None:
             jobId,
             tsvPath,
         )
-    post.printResults(successfulRenders, failedRenders)
+    mlogs.printResults(successfulRenders, failedRenders)
