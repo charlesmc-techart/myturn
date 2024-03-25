@@ -7,7 +7,7 @@ SHOW = "myt"
 
 
 def verifyScene(scene: Path) -> Optional[str]:
-    """Verify if the path is a valid Harmony scene."""
+    """Verify if the path is a valid Harmony scene"""
     if not scene.exists():
         return f"Path does not exist: {scene}"
     elif scene.suffix != ".xstage":
@@ -58,7 +58,7 @@ class ShotID:
 
 
 class DirectoryNotFoundOnGoogleSharedDriveError(FileNotFoundError):
-    """Provided directory could not be found on the Google shared drive."""
+    """Provided directory could not be found on the Google shared drive"""
 
     def __init__(self, dir: Path | str) -> None:
         super().__init__(
@@ -67,7 +67,7 @@ class DirectoryNotFoundOnGoogleSharedDriveError(FileNotFoundError):
 
 
 def getShotPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
-    """Get the path to the specific shot directory."""
+    """Get the path to the specific shot directory"""
 
     def findDir(identifier: str, parentDir: Path) -> Path | NoReturn:
         for d in parentDir.iterdir():
@@ -82,7 +82,7 @@ def getShotPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
 
 
 def constructVersionSuffix(dir: Path, versionIndicator: str = "v") -> str:
-    """Construct a directory name version, formatted `v###`."""
+    """Construct a directory name version, formatted `v###`"""
     dirs = [d for d in dir.iterdir() if d.is_dir() and SHOW in d.name]
 
     def constructSuffix(version: int) -> str:
