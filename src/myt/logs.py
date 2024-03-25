@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, NoReturn, Optional
 
 
-def getCurrentTime() -> str:
+def time() -> str:
     """Get the current time in MM/DD/YYYY HH:MM:SS format"""
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -18,7 +18,7 @@ def parseHarmonyInfo(tempFile: Path) -> list[str]:
         return f.read().split(",")
 
 
-def formatInformation(
+def formatInfo(
     infoFromHarmony: MutableSequence[Any],
     infoAboutRender: Sequence[Any],
 ) -> tuple[Any, ...]:
@@ -57,7 +57,7 @@ def writeToTsv(infoToWrite: Sequence[str | int], tsvFile: Path) -> None:
         writer.writerow(infoToWrite)
 
 
-def logResults(
+def write(
     tsvFile: Path,
     tempFile: Path,
     jobId: int,
@@ -67,18 +67,16 @@ def logResults(
 ):
     infoFromHarmony = parseHarmonyInfo(tempFile)
     infoAboutRender = jobStartTime, renderStartTime, renderEndTime, jobId
-    formattedInfo = formatInformation(
-        infoFromHarmony, infoAboutRender=infoAboutRender
-    )
+    formattedInfo = formatInfo(infoFromHarmony, infoAboutRender=infoAboutRender)
     writeToTsv(formattedInfo, tsvFile)
 
 
-def printResults(
+def show(
     successfulRenders: Sequence[str], errorMessages: Sequence[str]
 ) -> Optional[NoReturn]:
     """Print the file names of successful renders and error messages"""
 
-    def printErrorMessages():
+    def showErrorMessages():
         print("Failed to render:")
         for e in errorMessages:
             print(e)
@@ -90,7 +88,7 @@ def printResults(
             print(item)
         if errorMessages:
             print()
-            printErrorMessages()
+            showErrorMessages()
     else:
-        printErrorMessages()
+        showErrorMessages()
         exit(1)

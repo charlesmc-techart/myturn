@@ -6,7 +6,7 @@ from typing import NoReturn, Optional
 SHOW = "myt"
 
 
-def verifyScene(scene: Path) -> Optional[str]:
+def verify(scene: Path) -> Optional[str]:
     """Verify if the path is a valid Harmony scene"""
     if not scene.exists():
         return f"Path does not exist: {scene}"
@@ -17,7 +17,7 @@ def verifyScene(scene: Path) -> Optional[str]:
     return None
 
 
-class MyTurnFilenameError(ValueError):
+class MyTurnInvalidFilenameError(ValueError):
     """File does not adhere to My Turn!'s filename protocol"""
 
     def __init__(self, filename: str) -> None:
@@ -50,14 +50,14 @@ class ShotID:
         return f"{self.__class__.__name__}({self.name!r})"
 
     @classmethod
-    def getFromFilename(cls, filename: str, affix: str = SHOW + "_") -> ShotID:
+    def fromFilename(cls, filename: str, affix: str = SHOW + "_") -> ShotID:
         if affix not in filename:
-            raise MyTurnFilenameError(filename)
+            raise MyTurnInvalidFilenameError(filename)
         name = filename.split(affix, 1)[-1][:6]
         return cls(name)
 
 
-class DirectoryNotFoundOnGoogleSharedDriveError(FileNotFoundError):
+class GoogleSharedDriveDirectoryNotFoundError(FileNotFoundError):
     """Provided directory could not be found on the Google shared drive"""
 
     def __init__(self, dir: Path | str) -> None:
@@ -66,14 +66,14 @@ class DirectoryNotFoundOnGoogleSharedDriveError(FileNotFoundError):
         )
 
 
-def getShotPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
+def findRenderPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
     """Get the path to the specific shot directory"""
 
     def findDir(identifier: str, parentDir: Path) -> Path | NoReturn:
         for d in parentDir.iterdir():
             if d.is_dir() and d.stem.endswith(identifier):
                 return d
-        raise DirectoryNotFoundOnGoogleSharedDriveError(
+        raise GoogleSharedDriveDirectoryNotFoundError(
             parentDir / ("*" + identifier)
         )
 
@@ -81,16 +81,16 @@ def getShotPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
     return findDir(shot.number, parentDir=actDir) / "EXR"
 
 
-def constructVersionSuffix(dir: Path, versionIndicator: str = "v") -> str:
+def newVersion(dir: Path, versionIndicator: str = "v") -> str:
     """Construct a directory name version, formatted `v###`"""
     dirs = [d for d in dir.iterdir() if d.is_dir() and SHOW in d.name]
 
-    def constructSuffix(version: int) -> str:
+    def construct(version: int) -> str:
         return versionIndicator + f"{version + 1}".zfill(3)
 
     if not dirs:
         version = 0
-        return constructSuffix(version)
+        return construct(version)
 
     dirs.sort()
     lastItem = f"{dirs[-1]}"
@@ -99,4 +99,4 @@ def constructVersionSuffix(dir: Path, versionIndicator: str = "v") -> str:
     except ValueError:
         version = len(dirs)
 
-    return constructSuffix(version)
+    return construct(version)
