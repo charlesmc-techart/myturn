@@ -59,11 +59,11 @@ def main(scenePaths: list[str]) -> None:
             failedRenders.append(failureMessage)
             continue
 
-        actNum, shotNum = pre.getSequence(scenePath)
-        renderDir = pre.findRenderDir(actNum, shotNum, gDrive)
+        shot = mfiles.ShotID.getFromFilename(scenePath.stem)
+        renderDir = mfiles.getShotPath(shot, gDrive)
 
         os.environ["MYT_RENDER_DIR"] = f"{renderDir}"
-        os.environ["MYT_RENDER_VER"] = pre.setVersion(renderDir)
+        os.environ["MYT_RENDER_VER"] = mfiles.constructVersionSuffix(renderDir)
 
         if failureMessage := render(scenePath):
             failedRenders.append(failureMessage)

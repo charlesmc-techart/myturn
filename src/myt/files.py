@@ -3,14 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import NoReturn, Optional
 
-
-def getCurrentTime() -> str:
-    """Get the current time in MM/DD/YYYY HH:MM:SS format."""
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+SHOW = "myt"
 
 
 def verifyScene(scene: Path) -> Optional[str]:
-    """Verify if the scene path is a valid Harmony scene."""
+    """Verify if the path is a valid Harmony scene."""
     if not scene.exists():
         return f"Path does not exist: {scene}"
     elif scene.suffix != ".xstage":
@@ -20,66 +17,90 @@ def verifyScene(scene: Path) -> Optional[str]:
     return None
 
 
-def getSequence(scene: Path) -> tuple[str, str]:
-    """Get the act and shot numbers based on the scene path."""
+class MyTurnFilenameError(ValueError):
+    """File does not adhere to My Turn!'s filename protocol"""
 
-    def getActShotNumbers(sceneName: str) -> tuple[str, str]:
-        act, shot = sceneName.split("_")[1:3]
-        return act[-1], shot
-
-    if scene.stem.lower().startswith("myt"):
-        return getActShotNumbers(scene.stem)
-
-    # If scene name doesn't start with "myt", get string after "myt"
-    sceneNameTail = scene.stem.split("myt")[-1]
-    try:
-        actNum, shotNum = getActShotNumbers(sceneNameTail)
-    except ValueError:
-        return "0", "000"
-    else:
-        return actNum, shotNum
+    def __init__(self, filename: str) -> None:
+        message = (
+            f"The scene's filename, {filename}, must contain "
+            "'myt_a#_###' for the script to work properly."
+        )
+        super().__init__(message)
 
 
-def findRenderDir(actNum: str, shotNum: str, gDrive: Path) -> Path:
-    """Find the directory based on the act and shot numbers."""
+class ShotID:
+    """Shot identifier used in asset filenames, formatted `a#_###`"""
 
-    def filterDir(filter: str, dir: Path) -> Path | NoReturn:
-        for d in dir.iterdir():
-            if d.is_dir() and d.stem.endswith(filter):
+    __slots__ = "name", "act", "number", "full"
+
+    def __new__(cls, name: str) -> ShotID:
+        try:
+            int(name[3:])
+        except ValueError as e:
+            raise ValueError(f"{name} must follow 'a#_###'") from e
+        return super().__new__(cls)
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.act = name[1:2]
+        self.number = name[3:6]
+        self.full = f"{SHOW}_{name}"
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.name!r})"
+
+    @classmethod
+    def getFromFilename(cls, filename: str, affix: str = SHOW + "_") -> ShotID:
+        if affix not in filename:
+            raise MyTurnFilenameError(filename)
+        name = filename.split(affix, 1)[-1][:6]
+        return cls(name)
+
+
+class DirectoryNotFoundOnGoogleSharedDriveError(FileNotFoundError):
+    """Provided directory could not be found on the Google shared drive."""
+
+    def __init__(self, dir: Path | str) -> None:
+        super().__init__(
+            f"The directory, {dir}, could not be found on a Google shared drive"
+        )
+
+
+def getShotPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
+    """Get the path to the specific shot directory."""
+
+    def findDir(identifier: str, parentDir: Path) -> Path | NoReturn:
+        for d in parentDir.iterdir():
+            if d.is_dir() and d.stem.endswith(identifier):
                 return d
-        raise FileNotFoundError
+        raise DirectoryNotFoundOnGoogleSharedDriveError(
+            parentDir / ("*" + identifier)
+        )
 
-    actDir = filterDir(actNum, gDrive)
-    return filterDir(shotNum, actDir) / "EXR"
+    actDir = findDir(shot.act, parentDir)
+    return findDir(shot.number, actDir) / "EXR"
 
 
-def getCurrentVersionNum(dir: Path) -> int:
-    """Get the current version of the render by counting the number of folders."""
+def constructVersionSuffix(dir: Path, versionIndicator: str = "v") -> str:
+    """Construct a directory name version, formatted `v###`."""
     dirs = [
         d
         for d in dir.iterdir()
-        if (d.is_dir() and d.stem.lower().startswith("myt"))
+        if d.is_dir() and d.stem.lower().startswith("myt")
     ]
+
+    def constructSuffix(version: int) -> str:
+        return versionIndicator + f"{version + 1}".zfill(3)
+
     if not dirs:
-        return 0
+        version = 0
+        return constructSuffix(version)
 
     dirs.sort()
     lastItem = f"{dirs[-1]}"
-
     try:
-        currentVer = int(lastItem.rsplit("v", 1)[-1])
+        version = int(lastItem.rsplit(versionIndicator, 1)[-1])
     except ValueError:
-        return len(dirs)
-    else:
-        return currentVer
+        version = len(dirs)
 
-
-def setVersionSuffix(num: int) -> str:
-    """Set the version number and format it as 'v000'."""
-    return "v" + f"{num + 1}".zfill(3)
-
-
-def setVersion(dir: Path) -> str:
-    """Get the current version and set the version suffix."""
-    ver = getCurrentVersionNum(dir)
-    return setVersionSuffix(ver)
+    return constructSuffix(version)
