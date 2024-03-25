@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+"""Batch render Harmony scenes into EXR files"""
+
 import os
 import sys
 from argparse import ArgumentParser
@@ -7,7 +9,7 @@ from pathlib import Path
 
 import myt.render
 
-HARMONY_VER = 22
+HARMONY_VER = 21.1
 
 if sys.platform == "win32":
     pathSeparator = ";"
@@ -27,7 +29,7 @@ else:
 os.environ["PATH"] += f"{pathSeparator}{harmonyPath}"
 
 if __name__ == "__main__":
-    parser = ArgumentParser(prog="My Turn! Harmony Exporter")
+    parser = ArgumentParser(prog="My Turn! Harmony Exporter", description=__doc__)
     parser.add_argument(
         "scenes", type=Path, nargs="+", help="paths to Harmony scene files"
     )
