@@ -1,34 +1,32 @@
+from __future__ import annotations
+
 import csv
 from collections.abc import MutableSequence, Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import Any, NoReturn, Union
+from typing import Any, NoReturn, Optional
 
 
 def getCurrentTime() -> str:
-    """Get the current time in MM/DD/YYYY HH:MM:SS format."""
+    """Get the current time in MM/DD/YYYY HH:MM:SS format"""
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
-def parseHarmonyInfo(tempFilePath: Path) -> list[str]:
-    """Get information about the scene from the file Harmony wrote to."""
-    with open(tempFilePath, "r") as temp_file:
-        return temp_file.read().split(",")
+def parseHarmonyInfo(tempFile: Path) -> list[str]:
+    """Get information about the scene from the file Harmony wrote to"""
+    with tempFile.open("r", encoding="utf-8") as f:
+        return f.read().split(",")
 
 
 def formatInformation(
     infoFromHarmony: MutableSequence[Any],
     infoAboutRender: Sequence[Any],
 ) -> tuple[Any, ...]:
-    """Reorganize information before writing to the TSV file."""
-    (
-        execStartTime,
-        renderStartTime,
-        renderEndTime,
-        jobId,
-    ) = infoAboutRender
+    """Reorganize information before writing to the TSV file"""
+    *timeStamps, jobId = infoAboutRender
+    jobStartTime, renderStartTime, renderEndTime = timeStamps
 
-    infoFromHarmony.insert(0, execStartTime)
+    infoFromHarmony.insert(0, jobStartTime)
     infoFromHarmony.insert(-1, renderStartTime)
     infoFromHarmony.insert(-1, renderEndTime)
     infoFromHarmony.append(jobId)
