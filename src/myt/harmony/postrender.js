@@ -6,37 +6,37 @@
 /**
  * @return {string} Directory containing rendered EXRs
  */
-function getVersionDir() {
-  const renderDir = System.getenv('MYT_RENDER_DIR')
-  const versionName = scene.currentVersionName()
-  const renderVer = System.getenv('MYT_RENDER_VER')
-  var versionDir = versionName + '_' + renderVer
-  versionDir = renderDir + '/' + versionDir
+function findRenderPath() {
+  const renderPath = System.getenv('MYT_RENDER_PATH')
+  const sceneVersionName = scene.currentVersionName()
+  const renderVersion = System.getenv('MYT_RENDER_VERSION')
+  var versionDir = sceneVersionName + '_' + renderVersion
+  versionDir = renderPath + '/' + versionDir
   return fileMapper.toNativePath(versionDir)
 }
 
 /**
- * @param {string} directoryPath The directory containing EXR files
+ * @param {string} renderPath The directory containing EXR files
  * @return {number} The number of EXR files in the directory
  */
-function countRenderedFrames(directoryPath) {
-  const dir = new Dir(directoryPath)
+function countRenderedFrames(renderPath) {
+  const dir = new Dir(renderPath)
   return dir.entryList('*.exr').length
 }
 
 /**
- * @param {string} infoToWrite Text to be written
+ * @param {string} renderInfo Text to be written
  */
-function writeToFile(infoToWrite, filePath) {
+function writeToFile(renderInfo, filePath) {
   const file = new File(filePath)
   file.open(FileAccess.Append)
-  file.write(infoToWrite)
+  file.write(renderInfo)
   file.close()
 }
 
 function main() {
-  const versionDir = getVersionDir()
-  const numRenderedFrames = countRenderedFrames(versionDir)
+  const renderPath = findRenderPath()
+  const numRenderedFrames = countRenderedFrames(renderPath)
   const filePath = System.getenv('MYT_TEMP_FILE')
   writeToFile([, numRenderedFrames], filePath)
 }

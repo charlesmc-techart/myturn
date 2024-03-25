@@ -9,11 +9,11 @@ from typing import Optional
 import myt.files
 import myt.logs
 
-HARMONY_SCRIPTS_DIR = Path(__file__).with_name("harmony")
-PRE_RENDER_SCRIPT = HARMONY_SCRIPTS_DIR / "prerender.js"
-POST_RENDER_SCRIPT = HARMONY_SCRIPTS_DIR / "postrender.js"
+HARMONY_SCRIPTS_PATH = Path(__file__).with_name("harmony")
+PRE_RENDER_SCRIPT = HARMONY_SCRIPTS_PATH / "prerender.js"
+POST_RENDER_SCRIPT = HARMONY_SCRIPTS_PATH / "postrender.js"
 
-G_DRIVE = HARMONY_SCRIPTS_DIR.parents[2]
+RENDER_DIR = HARMONY_SCRIPTS_PATH.parents[2]
 
 
 def render(scene: Path) -> Optional[str]:
@@ -40,10 +40,9 @@ def main(sceneFiles: Sequence[Path]) -> None:
     tempFile = tempfile.NamedTemporaryFile(prefix="myt_render_")
     env = os.environ
     env["MYT_TEMP_FILE"] = tempFile.name
-    env["MYT_G_DRIVE"] = f"{G_DRIVE}"
 
     tempFilePath = Path(tempFile.name)
-    tsvFile = G_DRIVE / "myt_render_log.tsv"
+    tsvFile = RENDER_DIR / "myt_render_log.tsv"
 
     successfulRenders: list[str] = []
     errorMessages: list[str] = []
@@ -57,10 +56,10 @@ def main(sceneFiles: Sequence[Path]) -> None:
             continue
 
         shot = myt.files.ShotID.fromFilename(scene.stem)
-        renderPath = myt.files.findRenderPath(shot, G_DRIVE)
+        renderPath = myt.files.findRenderPath(shot, RENDER_DIR)
 
-        env["MYT_RENDER_DIR"] = f"{renderPath}"
-        env["MYT_RENDER_VER"] = myt.files.newVersion(renderPath)
+        env["MYT_RENDER_PATH"] = f"{renderPath}"
+        env["MYT_RENDER_VERSION"] = myt.files.newVersion(renderPath)
 
         if errorMessage := render(scene):
             errorMessages.append(errorMessage)
