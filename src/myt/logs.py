@@ -58,42 +58,39 @@ def writeToTsv(infoToWrite: Sequence[str | int], tsvFile: Path) -> None:
 
 
 def logResults(
-    tempFilePath: Path,
-    execStartTime: str,
+    tsvFile: Path,
+    tempFile: Path,
+    jobId: int,
+    jobStartTime: str,
     renderStartTime: str,
     renderEndTime: str,
-    jobId: int,
-    tsvPath: Path,
 ):
-    infoFromHarmony = parseHarmonyInfo(tempFilePath)
+    infoFromHarmony = parseHarmonyInfo(tempFile)
+    infoAboutRender = jobStartTime, renderStartTime, renderEndTime, jobId
     formattedInfo = formatInformation(
-        infoFromHarmony,
-        (
-            execStartTime,
-            renderStartTime,
-            renderEndTime,
-            jobId,
-        ),
+        infoFromHarmony, infoAboutRender=infoAboutRender
     )
-    writeToTsv(formattedInfo, tsvPath)
+    writeToTsv(formattedInfo, tsvFile)
 
 
 def printResults(
-    successfulRenders: Sequence[str], failedRenders: Sequence[str]
-) -> Union[None, NoReturn]:
-    """Print the file names of successful renders and error messages."""
+    successfulRenders: Sequence[str], errorMessages: Sequence[str]
+) -> Optional[NoReturn]:
+    """Print the file names of successful renders and error messages"""
+
+    def printErrorMessages():
+        print("Failed to render:")
+        for e in errorMessages:
+            print(e)
+
     print()
     if successfulRenders:
         print("Successfully rendered:")
         for item in successfulRenders:
             print(item)
-        if failedRenders:
+        if errorMessages:
             print()
-            print("Failed to render:")
-            for item in failedRenders:
-                print(item)
+            printErrorMessages()
     else:
-        print("Failed to render")
-        for item in failedRenders:
-            print(item)
+        printErrorMessages()
         exit(1)
