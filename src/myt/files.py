@@ -17,15 +17,8 @@ def verify(scene: Path) -> Optional[str]:
     return None
 
 
-class MyTurnInvalidFilenameError(ValueError):
+class InvalidFilenameError(ValueError):
     """File does not adhere to My Turn!'s filename protocol"""
-
-    def __init__(self, filename: str) -> None:
-        message = (
-            f"The scene's filename, {filename}, must contain "
-            "'myt_a#_###' for the script to work properly."
-        )
-        super().__init__(message)
 
 
 class ShotID:
@@ -37,7 +30,8 @@ class ShotID:
         try:
             int(name[3:])
         except ValueError as e:
-            raise ValueError(f"{name} must follow 'a#_###'") from e
+            message = f"Name {name!r} must match pattern 'a#_###'"
+            raise InvalidFilenameError(message) from e
         return super().__new__(cls)
 
     def __init__(self, name: str) -> None:
@@ -52,30 +46,26 @@ class ShotID:
     @classmethod
     def fromFilename(cls, filename: str, affix: str = SHOW + "_") -> ShotID:
         if affix not in filename:
-            raise MyTurnInvalidFilenameError(filename)
+            message = f"Filename {filename!r} must match pattern 'myt_a#_###'"
+            raise InvalidFilenameError(message)
         name = filename.split(affix, 1)[-1][:6]
         return cls(name)
-
-
-class GoogleSharedDriveDirectoryNotFoundError(FileNotFoundError):
-    """Provided directory could not be found on the Google shared drive"""
-
-    def __init__(self, dir: Path | str) -> None:
-        super().__init__(
-            f"The directory, {dir}, could not be found on a Google shared drive"
-        )
 
 
 def findRenderPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
     """Get the path to the specific shot directory"""
 
+    class DirectoryNotFoundError(FileNotFoundError):
+        """Provided directory could not be found on the Google shared drive"""
+
+        def __init__(self, dir: Path | str) -> None:
+            super().__init__(f"Could not find directory: '{dir}'")
+
     def findDir(identifier: str, parentDir: Path) -> Path | NoReturn:
         for d in parentDir.iterdir():
             if d.is_dir() and d.stem.endswith(identifier):
                 return d
-        raise GoogleSharedDriveDirectoryNotFoundError(
-            parentDir / ("*" + identifier)
-        )
+        raise DirectoryNotFoundError(parentDir / ("*" + identifier))
 
     actDir = findDir(shot.act, parentDir=parentDir)
     return findDir(shot.number, parentDir=actDir) / "EXR"
