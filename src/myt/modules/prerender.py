@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from datetime import datetime
 from pathlib import Path
+from typing import NoReturn
 
 
 def getCurrentTime() -> str:
@@ -41,13 +44,14 @@ def getSequence(scene: Path) -> tuple[str, str]:
 def findRenderDir(actNum: str, shotNum: str, gDrive: Path) -> Path:
     """Find the directory based on the act and shot numbers."""
 
-    def filterDir(filter: str, dir: Path) -> Path:
+    def filterDir(filter: str, dir: Path) -> Path | NoReturn:
         for d in dir.iterdir():
             if d.is_dir() and d.stem.endswith(filter):
                 return d
+        raise FileNotFoundError
 
-    act_dir = filterDir(actNum, gDrive)
-    return filterDir(shotNum, act_dir) / "EXR"
+    actDir = filterDir(actNum, gDrive)
+    return filterDir(shotNum, actDir) / "EXR"
 
 
 def getCurrentVersionNum(dir: Path) -> int:
