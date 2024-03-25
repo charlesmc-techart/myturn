@@ -1,17 +1,30 @@
 #!/usr/bin/python3
 
 import os
+import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
 import myt.render
 
-HARMONY_VER = 21.1
-HARMONY_PATH = (
-    f"/Applications/Toon Boom Harmony {HARMONY_VER} Premium"
-    f"/Harmony {HARMONY_VER} Premium.app/Contents/tba/macosx/bin"
-)
-os.environ["PATH"] += f":{HARMONY_PATH}"
+HARMONY_VER = 22
+
+if sys.platform == "win32":
+    pathSeparator = ";"
+    harmonyPath = (
+        r"C:\Program Files (x86)\Toon Boom Animation"
+        f"\\Toon Boom Harmony {HARMONY_VER} Premium\\win64\\bin"
+    )
+elif sys.platform == "darwin":
+    pathSeparator = ":"
+    harmonyPath = (
+        f"/Applications/Toon Boom Harmony {HARMONY_VER} Premium"
+        f"/Harmony {HARMONY_VER} Premium.app/Contents/tba/macosx/bin"
+    )
+else:
+    raise NotImplementedError
+
+os.environ["PATH"] += f"{pathSeparator}{harmonyPath}"
 
 if __name__ == "__main__":
     parser = ArgumentParser(prog="My Turn! Harmony Exporter")
