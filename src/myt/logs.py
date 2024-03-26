@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 from collections.abc import Sequence
 from datetime import datetime
+from io import TextIOWrapper
 from pathlib import Path
 from typing import NoReturn, Optional
 
@@ -14,15 +15,15 @@ def time() -> str:
 
 def write(
     tsvFile: Path,
-    tempFile: Path,
+    tempFile: TextIOWrapper,
     jobId: int,
     jobStartTime: str,
     renderStartTime: str,
     renderEndTime: str,
 ):
     """Write the information to the TSV file"""
-    with tempFile.open("r", encoding="utf-8") as f:
-        infoFromHarmony = f.read().split(",")
+    with tempFile:
+        infoFromHarmony = tempFile.read().split(",")
     # infoFromHarmony is formatted as :
     # infoFromHarmony = [
     #     versionName,

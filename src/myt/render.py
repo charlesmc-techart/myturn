@@ -1,9 +1,9 @@
 import os
 import subprocess
-import tempfile
 import uuid
 from collections.abc import Sequence
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Optional
 
 import myt.files
@@ -28,8 +28,7 @@ def render(scene: Path) -> Optional[str]:
         "-postRenderScript",
         POST_RENDER_SCRIPT,
     )
-    result = subprocess.run(args)
-    if result.returncode:
+    if subprocess.run(args).returncode:
         return "Harmony failure    : " + scene.stem
     return None
 
@@ -37,11 +36,10 @@ def render(scene: Path) -> Optional[str]:
 def main(sceneFiles: Sequence[Path]) -> None:
     jobStartTime = myt.logs.time()
 
-    tempFile = tempfile.NamedTemporaryFile(prefix="myt_render_")
+    tempFile = NamedTemporaryFile(mode="r", prefix="myt_render_")
     env = os.environ
     env["MYT_TEMP_FILE"] = tempFile.name
 
-    tempFilePath = Path(tempFile.name)
     tsvFile = RENDER_DIR / "myt_render_log.tsv"
 
     successfulRenders: list[str] = []
@@ -69,7 +67,7 @@ def main(sceneFiles: Sequence[Path]) -> None:
         renderEndTime = myt.logs.time()
         myt.logs.write(
             tsvFile,
-            tempFile=tempFilePath,
+            tempFile=tempFile,
             jobId=jobId,
             jobStartTime=jobStartTime,
             renderStartTime=renderStartTime,
