@@ -29,7 +29,7 @@ def render(scene: Path) -> Optional[str]:
         _POST_RENDER_SCRIPT,
     )
     if subprocess.run(args).returncode:
-        return "Harmony failure    : " + scene.stem
+        return f"Harmony failure    : {scene.stem}"
     return None
 
 

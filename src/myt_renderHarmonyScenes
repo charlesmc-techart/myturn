@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 """Batch render Harmony scenes into EXR files"""
 
 import os
@@ -29,7 +28,9 @@ else:
 os.environ["PATH"] += f"{pathSeparator}{harmonyPath}"
 
 if __name__ == "__main__":
-    parser = ArgumentParser(prog="My Turn! Harmony Exporter", description=__doc__)
+    parser = ArgumentParser(
+        prog="My Turn! Harmony Exporter", description=__doc__
+    )
     parser.add_argument(
         "scenes", type=Path, nargs="+", help="paths to Harmony scene files"
     )

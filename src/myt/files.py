@@ -11,9 +11,9 @@ def verify(scene: Path) -> Optional[str]:
     if not scene.exists():
         return f"Path does not exist: {scene}"
     elif scene.suffix != ".xstage":
-        return "Not a Harmony scene: " + scene.name
+        return f"Not a Harmony scene: {scene.name}"
     elif SHOW not in scene.stem:
-        return "Not a My Turn! scene: " + scene.stem
+        return f"Not a My Turn! scene: {scene.stem}"
     return None
 
 
@@ -83,7 +83,7 @@ def newVersion(dir: Path, versionIndicator: str = "v") -> str:
 
     if not dirs:
         version = 0
-        return construct(version)
+        return construct(0)
 
     dirs.sort()
     lastItem = f"{dirs[-1]}"
@@ -91,5 +91,4 @@ def newVersion(dir: Path, versionIndicator: str = "v") -> str:
         version = int(lastItem.rsplit(versionIndicator, 1)[-1])
     except ValueError:
         version = len(dirs)
-
     return construct(version)
