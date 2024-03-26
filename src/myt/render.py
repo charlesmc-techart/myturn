@@ -36,7 +36,7 @@ def render(scene: Path) -> Optional[str]:
 def main(sceneFiles: Sequence[Path]) -> None:
     jobStartTime = myt.logs.time()
 
-    tempFile = NamedTemporaryFile(mode="r", prefix="myt_render_")
+    harmonyInfoFile = NamedTemporaryFile(mode="r", prefix="myt_render_")
     env = os.environ
     env["MYT_RENDER_INFO_PATH"] = harmonyInfoFile.name
 
@@ -64,11 +64,11 @@ def main(sceneFiles: Sequence[Path]) -> None:
         successfulRenders.append(scene.stem)
         renderEndTime = myt.logs.time()
         myt.logs.write(
-            tsvFile,
-            tempFile=tempFile,
+            RENDER_DIR,
             jobId=jobId,
             jobStartTime=jobStartTime,
             renderStartTime=renderStartTime,
             renderEndTime=renderEndTime,
+            harmonyInfoFile=harmonyInfoFile,
         )
     myt.logs.show(successfulRenders, errorMessages=errorMessages)

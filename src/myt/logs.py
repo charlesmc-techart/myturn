@@ -7,6 +7,8 @@ from io import TextIOWrapper
 from pathlib import Path
 from typing import NoReturn, Optional
 
+LOG_FILE = "myt_render_log.tsv"
+
 
 def time() -> str:
     """Get the current time in MM/DD/YYYY HH:MM:SS format"""
@@ -14,18 +16,18 @@ def time() -> str:
 
 
 def write(
-    tsvFile: Path,
-    tempFile: TextIOWrapper,
+    dir: Path,
     jobId: int,
     jobStartTime: str,
     renderStartTime: str,
     renderEndTime: str,
+    harmonyInfoFile: TextIOWrapper,
 ):
     """Write the information to the TSV file"""
-    with tempFile:
-        infoFromHarmony = tempFile.read().split(",")
-    # infoFromHarmony is formatted as :
-    # infoFromHarmony = [
+    with harmonyInfoFile:
+        harmonyInfo = harmonyInfoFile.read().split(",")
+    # harmonyInfo is formatted as:
+    # harmonyInfo = [
     #     versionName,
     #     numberOfFrames,
     #     startFrame,
@@ -35,15 +37,16 @@ def write(
     # ]
     formattedInfo = (
         jobStartTime,
-        *infoFromHarmony[:5],
+        *harmonyInfo[:5],
         renderStartTime,
         renderEndTime,
-        infoFromHarmony[-1],
+        harmonyInfo[-1],
         jobId,
     )
 
-    willWriteHeaders = not (tsvFile.exists() and tsvFile.is_file())
-    with tsvFile.open("a", encoding="utf-8") as f:
+    logFile = dir / LOG_FILE
+    willWriteHeaders = not (logFile.exists() and logFile.is_file())
+    with logFile.open("a", encoding="utf-8") as f:
         writer = csv.writer(f, dialect=csv.excel_tab)
         if willWriteHeaders:
             headers = (
