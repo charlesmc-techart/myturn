@@ -38,9 +38,7 @@ def main(sceneFiles: Sequence[Path]) -> None:
 
     tempFile = NamedTemporaryFile(mode="r", prefix="myt_render_")
     env = os.environ
-    env["MYT_TEMP_FILE"] = tempFile.name
-
-    tsvFile = RENDER_DIR / "myt_render_log.tsv"
+    env["MYT_RENDER_INFO_PATH"] = harmonyInfoFile.name
 
     successfulRenders: list[str] = []
     errorMessages: list[str] = []

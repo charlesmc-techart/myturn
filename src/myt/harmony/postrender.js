@@ -37,7 +37,7 @@ function writeToFile(renderInfo, filePath) {
 function main() {
   const renderPath = findRenderPath()
   const numRenderedFrames = countRenderedFrames(renderPath)
-  const filePath = System.getenv('MYT_TEMP_FILE')
+  const filePath = System.getenv('MYT_RENDER_INFO_PATH')
   writeToFile([, numRenderedFrames], filePath)
 }
 

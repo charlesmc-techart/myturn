@@ -46,7 +46,7 @@ function main() {
   const sceneInfo = getSceneInfo()
   setWriteLocation(sceneInfo[0])
 
-  const filePath = System.getenv('MYT_TEMP_FILE')
+  const filePath = System.getenv('MYT_RENDER_INFO_PATH')
   writeToFile(sceneInfo, filePath)
 }
 
