@@ -7,7 +7,7 @@ from io import TextIOWrapper
 from pathlib import Path
 from typing import NoReturn, Optional
 
-LOG_FILE = "myt_render_log.tsv"
+_LOG_FILENAME = "myt_render_log.tsv"
 
 
 def time() -> str:
@@ -44,7 +44,7 @@ def write(
         jobId,
     )
 
-    logFile = dir / LOG_FILE
+    logFile = dir / _LOG_FILENAME
     willWriteHeaders = not (logFile.exists() and logFile.is_file())
     with logFile.open("a", encoding="utf-8") as f:
         writer = csv.writer(f, dialect=csv.excel_tab)

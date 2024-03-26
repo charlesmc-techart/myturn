@@ -9,11 +9,11 @@ from typing import Optional
 import myt.files
 import myt.logs
 
-HARMONY_SCRIPTS_PATH = Path(__file__).with_name("harmony")
-PRE_RENDER_SCRIPT = HARMONY_SCRIPTS_PATH / "prerender.js"
-POST_RENDER_SCRIPT = HARMONY_SCRIPTS_PATH / "postrender.js"
+_HARMONY_SCRIPTS_DIR = Path(__file__).with_name("harmony")
+_PRE_RENDER_SCRIPT = _HARMONY_SCRIPTS_DIR / "prerender.js"
+_POST_RENDER_SCRIPT = _HARMONY_SCRIPTS_DIR / "postrender.js"
 
-RENDER_DIR = HARMONY_SCRIPTS_PATH.parents[2]
+_RENDER_DIR = _HARMONY_SCRIPTS_DIR.parents[2]
 
 
 def render(scene: Path) -> Optional[str]:
@@ -24,9 +24,9 @@ def render(scene: Path) -> Optional[str]:
         "-batch",
         scene,
         "-preRenderScript",
-        PRE_RENDER_SCRIPT,
+        _PRE_RENDER_SCRIPT,
         "-postRenderScript",
-        POST_RENDER_SCRIPT,
+        _POST_RENDER_SCRIPT,
     )
     if subprocess.run(args).returncode:
         return "Harmony failure    : " + scene.stem
@@ -52,7 +52,7 @@ def main(sceneFiles: Sequence[Path]) -> None:
             continue
 
         shot = myt.files.ShotID.fromFilename(scene.stem)
-        renderPath = myt.files.findRenderPath(shot, RENDER_DIR)
+        renderPath = myt.files.findRenderPath(shot, _RENDER_DIR)
 
         env["MYT_RENDER_PATH"] = f"{renderPath}"
         env["MYT_RENDER_VERSION"] = myt.files.newVersion(renderPath)
@@ -64,7 +64,7 @@ def main(sceneFiles: Sequence[Path]) -> None:
         successfulRenders.append(scene.stem)
         renderEndTime = myt.logs.time()
         myt.logs.write(
-            RENDER_DIR,
+            _RENDER_DIR,
             jobId=jobId,
             jobStartTime=jobStartTime,
             renderStartTime=renderStartTime,
