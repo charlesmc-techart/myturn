@@ -11,13 +11,11 @@ import myt.render
 HARMONY_VER = 21.1
 
 if sys.platform == "win32":
-    pathSeparator = ";"
     harmonyPath = (
         r"C:\Program Files (x86)\Toon Boom Animation"
         f"\\Toon Boom Harmony {HARMONY_VER} Premium\\win64\\bin"
     )
 elif sys.platform == "darwin":
-    pathSeparator = ":"
     harmonyPath = (
         f"/Applications/Toon Boom Harmony {HARMONY_VER} Premium"
         f"/Harmony {HARMONY_VER} Premium.app/Contents/tba/macosx/bin"
@@ -25,7 +23,7 @@ elif sys.platform == "darwin":
 else:
     raise NotImplementedError
 
-os.environ["PATH"] += f"{pathSeparator}{harmonyPath}"
+os.environ["PATH"] += f"{os.pathsep}{harmonyPath}"
 
 if __name__ == "__main__":
     parser = ArgumentParser(
