@@ -69,6 +69,6 @@ def main(sceneFiles: Sequence[Path]) -> None:
             jobStartTime=jobStartTime,
             renderStartTime=renderStartTime,
             renderEndTime=renderEndTime,
-            harmonyInfoFile=harmonyInfoFile,
+            harmonyInfoFile=harmonyInfoFile,  # type: ignore
         )
     myt.logs.show(successfulRenders, errorMessages=errorMessages)
