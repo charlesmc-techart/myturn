@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from datetime import datetime
 from io import TextIOWrapper
 from pathlib import Path
-from typing import NoReturn, Optional
+from typing import NoReturn
 
 _LOG_FILENAME = "myt_render_log.tsv"
 
@@ -17,38 +17,38 @@ def time() -> str:
 
 def write(
     dir: Path,
-    jobId: int,
-    jobStartTime: str,
-    renderStartTime: str,
-    renderEndTime: str,
-    harmonyInfoFile: TextIOWrapper,
-):
+    job_id: int,
+    job_start_time: str,
+    render_start_time: str,
+    render_end_time: str,
+    harmony_info_file: TextIOWrapper,
+) -> None:
     """Write the information to the TSV file"""
-    with harmonyInfoFile:
-        harmonyInfo = harmonyInfoFile.read().split(",")
-    # harmonyInfo is formatted as:
-    # harmonyInfo = [
-    #     versionName,
-    #     numberOfFrames,
-    #     startFrame,
-    #     endFrame,
-    #     colorSpace,
-    #     renderedFrames
+    with harmony_info_file:
+        harmony_info = harmony_info_file.read().split(",")
+    # harmony_info is formatted as:
+    # harmony_info = [
+    #     scene_version_name,
+    #     scene_number_of_frames,
+    #     scene_start_frame,
+    #     scene_end_frame,
+    #     scene_color_space,
+    #     number_of_rendered_frames
     # ]
-    formattedInfo = (
-        jobStartTime,
-        *harmonyInfo[:5],
-        renderStartTime,
-        renderEndTime,
-        harmonyInfo[-1],
-        jobId,
+    formatted_info = (
+        job_start_time,
+        *harmony_info[:5],
+        render_start_time,
+        render_end_time,
+        harmony_info[-1],
+        job_id,
     )
 
-    logFile = dir / _LOG_FILENAME
-    willWriteHeaders = not (logFile.exists() and logFile.is_file())
-    with logFile.open("a", encoding="utf-8") as f:
+    log_file = dir / _LOG_FILENAME
+    will_write_headers = not (log_file.exists() and log_file.is_file())
+    with log_file.open("a", encoding="utf-8") as f:
         writer = csv.writer(f, dialect=csv.excel_tab)
-        if willWriteHeaders:
+        if will_write_headers:
             headers = (
                 "Date",
                 "Version",
@@ -62,27 +62,27 @@ def write(
                 "Job ID",
             )
             writer.writerow(headers)
-        writer.writerow(formattedInfo)
+        writer.writerow(formatted_info)
 
 
 def show(
-    successfulRenders: Sequence[str], errorMessages: Sequence[str]
-) -> Optional[NoReturn]:
+    successful_renders: Sequence[str], error_messages: Sequence[str]
+) -> None | NoReturn:
     """Print the file names of successful renders and error messages"""
 
-    def showErrorMessages():
+    def show_error_messages():
         print("Failed to render:")
-        for e in errorMessages:
+        for e in error_messages:
             print(e)
 
     print()
-    if successfulRenders:
+    if successful_renders:
         print("Successfully rendered:")
-        for item in successfulRenders:
+        for item in successful_renders:
             print(item)
-        if errorMessages:
+        if error_messages:
             print()
-            showErrorMessages()
+            show_error_messages()
     else:
-        showErrorMessages()
+        show_error_messages()
         exit(1)

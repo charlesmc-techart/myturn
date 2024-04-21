@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 import os
 import subprocess
 import uuid
 from collections.abc import Sequence
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Optional
 
 import myt.files
 import myt.logs
@@ -16,7 +17,7 @@ _POST_RENDER_SCRIPT = _HARMONY_SCRIPTS_DIR / "postrender.js"
 _RENDER_DIR = _HARMONY_SCRIPTS_DIR.parents[2]
 
 
-def render(scene: Path) -> Optional[str]:
+def render(scene: Path) -> str | None:
     """Render the Harmony scene, then return an error message if any"""
     args = (
         "Harmony Premium",
@@ -33,42 +34,42 @@ def render(scene: Path) -> Optional[str]:
     return None
 
 
-def main(sceneFiles: Sequence[Path]) -> None:
-    jobStartTime = myt.logs.time()
+def main(scene_files: Sequence[Path]) -> None:
+    job_start_time = myt.logs.time()
 
-    harmonyInfoFile = NamedTemporaryFile(mode="r", prefix="myt_render_")
+    harmony_info_file = NamedTemporaryFile(mode="r", prefix="myt_render_")
     env = os.environ
-    env["MYT_RENDER_INFO_PATH"] = harmonyInfoFile.name
+    env["MYT_RENDER_INFO_PATH"] = harmony_info_file.name
 
-    successfulRenders: list[str] = []
-    errorMessages: list[str] = []
+    successful_renders: list[str] = []
+    error_messages: list[str] = []
 
-    for scene in sceneFiles:
-        jobId = uuid.uuid4().time_hi_version
-        renderStartTime = myt.logs.time()
+    for scene in scene_files:
+        job_id = uuid.uuid4().time_hi_version
+        render_start_time = myt.logs.time()
 
-        if errorMessage := myt.files.verify(scene):
-            errorMessages.append(errorMessage)
+        if error_message := myt.files.verify(scene):
+            error_messages.append(error_message)
             continue
 
-        shot = myt.files.ShotID.fromFilename(scene.stem)
-        renderPath = myt.files.findRenderPath(shot, _RENDER_DIR)
+        shot = myt.files.ShotId.from_filename(scene.stem)
+        render_path = myt.files.find_render_path(shot, _RENDER_DIR)
 
-        env["MYT_RENDER_PATH"] = f"{renderPath}"
-        env["MYT_RENDER_VERSION"] = myt.files.newVersion(renderPath)
+        env["MYT_RENDER_PATH"] = f"{render_path}"
+        env["MYT_RENDER_VERSION"] = myt.files.new_version(render_path)
 
-        if errorMessage := render(scene):
-            errorMessages.append(errorMessage)
+        if error_message := render(scene):
+            error_messages.append(error_message)
             continue
 
-        successfulRenders.append(scene.stem)
-        renderEndTime = myt.logs.time()
+        successful_renders.append(scene.stem)
+        render_end_time = myt.logs.time()
         myt.logs.write(
             _RENDER_DIR,
-            jobId=jobId,
-            jobStartTime=jobStartTime,
-            renderStartTime=renderStartTime,
-            renderEndTime=renderEndTime,
-            harmonyInfoFile=harmonyInfoFile,  # type: ignore
+            job_id=job_id,
+            job_start_time=job_start_time,
+            render_start_time=render_start_time,
+            render_end_time=render_end_time,
+            harmony_info_file=harmony_info_file,  # type: ignore
         )
-    myt.logs.show(successfulRenders, errorMessages=errorMessages)
+    myt.logs.show(successful_renders, error_messages=error_messages)

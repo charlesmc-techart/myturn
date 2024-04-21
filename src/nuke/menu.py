@@ -3,7 +3,7 @@
 import nuke
 
 
-def setProjectFrameRange(readNode: str = "Read1"):
+def setProjectFrameRange(readNode: str = "Read1") -> None:
     """Set the project's frame range based on Read1's orig frame range"""
     readNode = nuke.toNode(readNode)
     firstFrame = readNode["origfirst"].getValue()
@@ -14,7 +14,7 @@ def setProjectFrameRange(readNode: str = "Read1"):
     projectSettings["last_frame"].setValue(lastFrame)
 
 
-def sfr(readNode: str = "Read1"):
+def sfr(readNode: str = "Read1") -> None:
     """Shorthand wrapper for interactive scripting"""
     setProjectFrameRange(readNode)
 

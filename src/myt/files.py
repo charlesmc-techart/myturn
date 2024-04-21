@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import NoReturn, Optional
+from typing import NoReturn
 
 SHOW = "myt"
 
 
-def verify(scene: Path) -> Optional[str]:
+def verify(scene: Path) -> str | None:
     """Verify if the path is a valid Harmony scene"""
     if not scene.exists():
         return f"Path does not exist: {scene}"
@@ -21,12 +21,12 @@ class InvalidFilenameError(ValueError):
     """File does not adhere to My Turn!'s filename protocol"""
 
 
-class ShotID:
+class ShotId:
     """Shot identifier used in asset filenames, formatted `a#_###`"""
 
     __slots__ = "name", "act", "number", "full"
 
-    def __new__(cls, name: str) -> ShotID:
+    def __new__(cls, name: str) -> ShotId:
         try:
             int(name[3:])
         except ValueError as e:
@@ -44,7 +44,7 @@ class ShotID:
         return f"{self.__class__.__name__}({self.name!r})"
 
     @classmethod
-    def fromFilename(cls, filename: str, affix: str = SHOW + "_") -> ShotID:
+    def from_filename(cls, filename: str, affix: str = f"{SHOW}_") -> ShotId:
         if affix not in filename:
             message = f"Filename {filename!r} must match pattern 'myt_a#_###'"
             raise InvalidFilenameError(message)
@@ -52,7 +52,7 @@ class ShotID:
         return cls(name)
 
 
-def findRenderPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
+def find_render_path(shot: ShotId, parent_dir: Path) -> Path | NoReturn:
     """Get the path to the specific shot directory"""
 
     class DirectoryNotFoundError(FileNotFoundError):
@@ -61,34 +61,34 @@ def findRenderPath(shot: ShotID, parentDir: Path) -> Path | NoReturn:
         def __init__(self, dir: Path | str) -> None:
             super().__init__(f"Could not find directory: '{dir}'")
 
-    def findDir(identifier: str, parentDir: Path) -> Path | NoReturn:
-        for d in parentDir.iterdir():
+    def find_dir(identifier: str, parent_dir: Path) -> Path | NoReturn:
+        for d in parent_dir.iterdir():
             if d.is_dir() and d.stem.endswith(identifier):
                 return d
-        raise DirectoryNotFoundError(parentDir / ("*" + identifier))
+        raise DirectoryNotFoundError(parent_dir / ("*" + identifier))
 
-    actDir = findDir(shot.act, parentDir=parentDir)
-    shotDir = findDir(shot.number, parentDir=actDir) / "EXR"
-    if shotDir.is_dir():
-        return shotDir
-    raise DirectoryNotFoundError(shotDir)
+    act_dir = find_dir(shot.act, parent_dir=parent_dir)
+    shot_dir = find_dir(shot.number, parent_dir=act_dir) / "EXR"
+    if shot_dir.is_dir():
+        return shot_dir
+    raise DirectoryNotFoundError(shot_dir)
 
 
-def newVersion(dir: Path, versionIndicator: str = "v") -> str:
+def new_version(dir: Path, version_indicator: str = "v") -> str:
     """Construct a directory name version, formatted `v###`"""
     dirs = [d for d in dir.iterdir() if d.is_dir() and SHOW in d.name]
 
     def construct(version: int) -> str:
-        return versionIndicator + f"{version + 1}".zfill(3)
+        return version_indicator + f"{version + 1}".zfill(3)
 
     if not dirs:
         version = 0
         return construct(0)
 
     dirs.sort()
-    lastItem = f"{dirs[-1]}"
+    last_item = f"{dirs[-1]}"
     try:
-        version = int(lastItem.rsplit(versionIndicator, 1)[-1])
+        version = int(last_item.rsplit(version_indicator, 1)[-1])
     except ValueError:
         version = len(dirs)
     return construct(version)
