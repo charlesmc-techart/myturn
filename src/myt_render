@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-"""Batch render Harmony scenes into EXR files"""
+"""Batch render Harmony scenes"""
+
+__author__ = "Charles Mesa Cayobit"
 
 import os
 import sys
@@ -20,13 +22,13 @@ elif sys.platform == "darwin":
         f"/Applications/Toon Boom Harmony {HARMONY_VER} Premium"
         f"/Harmony {HARMONY_VER} Premium.app/Contents/tba/macosx/bin"
     )
-else:
-    raise NotImplementedError
 
 os.environ["PATH"] += f"{os.pathsep}{harmony_path}"
 
 if __name__ == "__main__":
-    parser = ArgumentParser(prog="My Turn! Harmony Exporter", description=__doc__)
+    parser = ArgumentParser(
+        prog="My Turn! Harmony Exporter", description=__doc__
+    )
     parser.add_argument(
         "scenes", type=Path, nargs="+", help="paths to Harmony scene files"
     )

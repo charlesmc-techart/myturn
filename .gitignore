@@ -2,7 +2,7 @@
 *.tsv
 *.txz
 ACT?/
-testScene/
+test*/
 
 # caches
 .cache

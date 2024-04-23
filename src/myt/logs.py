@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+__author__ = "Charles Mesa Cayobit"
+
 import csv
 from collections.abc import Sequence
 from datetime import datetime
