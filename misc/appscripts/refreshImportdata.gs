@@ -3,9 +3,9 @@
  * when the spreadsheet isn't active
  */
 
-const SPREADSHEET_ID = ''
-const CELL = ''
-const DATA_URL = ''
+const SPREADSHEET_ID = "";
+const CELL = "";
+const DATA_URL = "";
 
 /**
  * @param {string} spreadsheetId ID of the spreadsheet file
@@ -14,17 +14,17 @@ const DATA_URL = ''
  * @return {Spreadsheet} The spreadsheet file
  */
 function setById(spreadsheetId, sheetCell, sourceUrl) {
-  const spreadsheet = SpreadsheetApp.openById(spreadsheetId)
+  const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
 
-  spreadsheet.getRange(sheetCell).setValue(`=IMPORTDATA("${sourceUrl}")`)
+  spreadsheet.getRange(sheetCell).setValue(`=IMPORTDATA("${sourceUrl}")`);
 
-  return spreadsheet
+  return spreadsheet;
 }
 
 function refreshImportdata() {
-  setById(SPREADSHEET_ID, CELL, DATA_URL)
+  setById(SPREADSHEET_ID, CELL, DATA_URL);
 }
 
 function buildTrigger() {
-  ScriptApp.newTrigger('refreshImportdata').timeBased().everyHours(1).create()
+  ScriptApp.newTrigger("refreshImportdata").timeBased().everyHours(1).create();
 }

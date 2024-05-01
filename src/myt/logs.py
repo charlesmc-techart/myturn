@@ -3,6 +3,7 @@ from __future__ import annotations
 __author__ = "Charles Mesa Cayobit"
 
 import csv
+import sys
 from collections.abc import Sequence
 from datetime import datetime
 from io import TextIOWrapper
@@ -27,7 +28,7 @@ def write(
 ) -> None:
     """Write the information to the TSV file"""
     with harmony_info_file:
-        harmony_info = harmony_info_file.read().split(",")
+        harmony_info = tuple(csv.reader(harmony_info_file))
     # harmony_info is formatted as:
     # harmony_info = [
     #     scene_version_name,
@@ -87,4 +88,4 @@ def show(
             show_error_messages()
     else:
         show_error_messages()
-        exit(1)
+        sys.exit(1)

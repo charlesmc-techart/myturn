@@ -85,7 +85,7 @@ def new_version(dir: Path, version_indicator: str = "v") -> str:
 
     if not dirs:
         version = 0
-        return construct(0)
+        return construct(version)
 
     dirs.sort()
     last_item = f"{dirs[-1]}"
