@@ -10,6 +10,7 @@ SHOW = "myt"
 
 def verify(scene: Path) -> str | None:
     """Verify if the path is a valid Harmony scene"""
+
     if not scene.exists():
         return f"Path does not exist: {scene}"
     elif scene.suffix != ".xstage":
@@ -76,9 +77,10 @@ def find_render_path(shot: ShotId, parent_dir: Path) -> Path | NoReturn:
     raise DirectoryNotFoundError(shot_dir)
 
 
-def new_version(dir: Path, version_indicator: str = "v") -> str:
+def new_version(directory: Path, version_indicator: str = "v") -> str:
     """Construct a directory name version, formatted `v###`"""
-    dirs = [d for d in dir.iterdir() if d.is_dir() and SHOW in d.name]
+
+    dirs = [d for d in directory.iterdir() if d.is_dir() and SHOW in d.name]
 
     def construct(version: int) -> str:
         return version_indicator + f"{version + 1}".zfill(3)

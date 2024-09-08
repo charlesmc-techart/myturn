@@ -21,6 +21,7 @@ _RENDER_DIR = _HARMONY_SCRIPTS_DIR.parents[2]
 
 def render(scene: Path) -> str | None:
     """Render the Harmony scene, then return an error message if any"""
+
     args = (
         "Harmony Premium",
         "-readonly",
@@ -72,6 +73,6 @@ def main(scene_files: Sequence[Path]) -> None:
             job_start_time=job_start_time,
             render_start_time=render_start_time,
             render_end_time=render_end_time,
-            harmony_info_file=harmony_info_file,  # type: ignore
+            harmony_info_file=harmony_info_file,
         )
     myt.logs.show(successful_renders, error_messages=error_messages)

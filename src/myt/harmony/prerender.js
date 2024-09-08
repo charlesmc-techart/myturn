@@ -18,7 +18,7 @@ function getSceneInfo() {
 
 /**
  * Set renders to write to directory named after version name
- * @param {string} sceneVersionName Verstion name of the scene
+ * @param {string} sceneVersionName Version name of the scene
  */
 function setWriteLocation(sceneVersionName) {
   const mlwNode = node.getNodes(["MultiLayerWrite"])[0];

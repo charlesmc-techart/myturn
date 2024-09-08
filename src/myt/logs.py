@@ -15,6 +15,7 @@ _LOG_FILENAME = "myt_render_log.tsv"
 
 def time() -> str:
     """Get the current time in MM/DD/YYYY HH:MM:SS format"""
+
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
@@ -27,6 +28,7 @@ def write(
     harmony_info_file: TextIOWrapper,
 ) -> None:
     """Write the information to the TSV file"""
+
     with harmony_info_file:
         harmony_info = tuple(csv.reader(harmony_info_file))
     # harmony_info is formatted as:
