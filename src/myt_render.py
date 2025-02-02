@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Batch render Harmony scenes"""
 
 __author__ = "Charles Mesa Cayobit"
